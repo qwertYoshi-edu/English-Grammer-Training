@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英文穴埋めトレーニングv2</title>
+<style>
+/* ====================================================== */
+/* == デザイン調整ガイド                               == */
+/* == ここから下の値を変更するとデザインが変わります == */
+/* ====================================================== */
+
+/* ===== 全体のスタイル ===== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* フォントの種類 */
+  background-color: #f4f7f9; /* 背景色 */
+  color: #333; /* 基本の文字色 */
+  margin: 0;
+  padding: 20px; /* 外側の余白 */
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background-color: #fff; /* コンテンツエリアの背景色 */
+  padding: 30px; /* コンテンツエリアの内側の余白 */
+  border-radius: 12px; /* コンテンツエリアの角の丸み */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 影 */
+  width: 100%;
+  max-width: 700px; /* 最大幅 */
+}
+
+h2, h3 {
+  color: #2c3e50; /* 見出しの文字色 */
+  border-bottom: 2px solid #3498db; /* 見出しの下線の色 */
+  padding-bottom: 10px; /* 見出しと下線の間の余白 */
+  margin-top: 0;
+}
+
+p {
+  line-height: 1.6; /* 段落の行の高さ */
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== 入力エリアのスタイル ===== */
+#inputArea p {
+  background-color: #ecf0f1; /* 説明文の背景色 */
+  border-left: 4px solid #3498db; /* 説明文の左側の線の色 */
+  padding: 12px; /* 説明文の内側の余白 */
+  border-radius: 4px;
+}
+textarea {
+  width: 100%;
+  height: 160px; /* テキストエリアの高さ */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem; /* テキストエリアの文字サイズ */
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+textarea:focus {
+  border-color: #3498db; /* フォーカス時の枠線の色 */
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* フォーカス時の影の色 */
+  outline: none;
+}
+
+/* ===== ボタンの共通スタイル ===== */
+button {
+  padding: 10px 20px; /* ボタンの余白 */
+  font-size: 1rem; /* ボタンの文字サイズ */
+  margin-top: 15px;
+  border: none;
+  border-radius: 6px;
+  color: #fff; /* ボタンの文字色 */
+  background-color: #3498db; /* 通常ボタンの背景色 */
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+button:hover {
+  background-color: #2980b9; /* 通常ボタンのホバー時の背景色 */
+}
+button:active {
+  transform: translateY(1px);
+}
+#retryBtn {
+  background-color: #f39c12; /* リトライボタンの背景色 */
+}
+#retryBtn:hover {
+  background-color: #e67e22; /* リトライボタンのホバー時の背景色 */
+}
+#restartBtn {
+  background-color: #95a5a6; /* 再スタートボタンの背景色 */
+  margin-left: 10px;
+}
+#restartBtn:hover {
+  background-color: #7f8c8d; /* 再スタートボタンのホバー時の背景色 */
+}
+
+/* ===== クイズエリアのスタイル ===== */
+.status {
+  margin: 10px 0 20px 0;
+  font-weight: bold;
+  background-color: #eaf5fc; /* ステータス表示の背景色 */
+  padding: 10px;
+  border-radius: 6px;
+  color: #2980b9; /* ステータス表示の文字色 */
+}
+.question {
+  margin: 20px 0;
+  font-size: 1.4rem; /* 問題文の文字サイズ */
+  line-height: 1.8;
+}
+.jp {
+  color: #555;
+  margin-top: 10px;
+  font-size: 1.2rem; /* 日本語訳の文字サイズ */
+}
+input.blank {
+  width: 120px; /* 穴埋め入力欄の幅 */
+  padding: 6px;
+  margin: 0 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1.3rem; /* 穴埋め入力欄の文字サイズ */
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input.blank:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+  outline: none;
+}
+
+/* ===== 答え合わせ表示のスタイル ===== */
+#answerContainer {
+  margin-top: 25px;
+  border-top: 2px dashed #bdc3c7;
+  padding-top: 20px;
+}
+.answer-line {
+  margin: 15px 0;
+  font-size: 1.3rem; /* 回答表示の文字サイズ */
+  padding: 10px;
+  border-radius: 6px;
+}
+.answer-line strong {
+    display: inline-block;
+    width: 150px; /* 「あなたの回答：」ラベルの幅 */
+}
+#userAnswerLine { background-color: #f9f9f9; } /* あなたの回答行の背景色 */
+#correctAnswerLine { background-color: #eaf5fc; } /* 正しい回答行の背景色 */
+
+/* ★ 正解・不正解テキストのスタイル ★ */
+.correct-text {
+  color: #2ecc71; /* 正解テキストの色 (緑) */
+  font-weight: bold;
+}
+.incorrect-text {
+  color: #e74c3c; /* 不正解テキストの色 (赤) */
+  font-weight: bold; 
+  text-decoration: line-through; 
+  text-decoration-thickness: 2px;
+  background-color: #fff0f0; /* ★修正★ 不正解テキストの背景色 (薄い赤) */
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+.highlight-answer {
+  color: #c0392b; /* 正しい答えのハイライト色 (濃い赤) */
+  font-weight: bold; 
+  background-color: #eaf7ec; /* ★修正★ 正しい答えの背景色 (薄い緑) */
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+
+/* ===== 結果表示のスタイル ===== */
+#resultTitle {
+  font-size: 1.5rem; /* 結果タイトルの文字サイズ */
+  color: #fff;
+  padding: 15px;
+  border-radius: 6px;
+  text-align: center;
+}
+#resultTitle.perfect {
+  background: linear-gradient(45deg, #2ecc71, #27ae60); /* パーフェクト時の背景色 */
+}
+#resultTitle.has-mistakes {
+  background: linear-gradient(45deg, #f39c12, #e67e22); /* ミスがあった時の背景色 */
+}
+
+.mistake {
+  color: #c0392b; /* 間違えた問題リストの文字色 */
+  background-color: #fff6f6; /* 間違えた問題リストの背景色 */
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 12px;
+  font-size: 1.1rem; /* 間違えた問題リストの文字サイズ */
+  line-height: 1.7;
+}
+.mistake .jp {
+  color: #777;
+  font-size: 0.95rem;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>英文穴埋めトレーニング</h2>
+
+  <!-- ======= ① 入力画面 ======= -->
+  <div id="inputArea">
+    <p>以下の書式で英文を入力し、開始ボタンを押してください。<br>
+    英文中で穴埋め候補にしたい語句を < > で囲み、末尾に「@日本語訳」を付与、文ごとに改行します。</p>
+    <p>例)<br>
+    I <often eat> breakfast <at> seven.@私は普段7時に朝食を食べる。<br>
+    We <will meet> you <in> the lobby.@ロビーで会いましょう。</p>
+
+    <textarea id="srcText" placeholder="ここに英文を入力..."></textarea><br>
+    <button id="startBtn">開始</button>
+  </div>
+
+  <!-- ======= ② 問題出題画面 ======= -->
+  <div id="quizArea" class="hidden">
+    <div class="status" id="statusLine"></div>
+    
+    <!-- 問題入力部分 -->
+    <div id="questionContainer">
+      <div class="question" id="questionBox"></div>
+      <button id="checkBtn">解答</button>
+    </div>
+
+    <!-- 答え合わせ表示部分 -->
+    <div id="answerContainer" class="hidden">
+      <div id="userAnswerLine" class="answer-line"></div>
+      <div id="correctAnswerLine" class="answer-line"></div>
+      <button id="nextBtn">次へ進む</button>
+    </div>
+  </div>
+
+
+  <!-- ======= ③ 結果表示画面 ======= -->
+  <div id="resultArea" class="hidden">
+    <h3 id="resultTitle"></h3>
+    <div id="mistakeList"></div>
+    <button id="retryBtn">リトライ</button>
+    <button id="restartBtn">最初からやり直す</button>
+  </div>
+</div>
+
+<script>
+/* ======  グローバル保持用  ====== */
+let allSentences = [];
+let currentRound = [];
+let currentIdx = 0;
+let correctCount = 0;
+let mistakeArray = [];
+
+/* ====== sentence オブジェクトの中身 ======
+{
+  engRaw : "I <often eat> breakfast <at> seven.",
+  jpn    : "私は普段7時に朝食を食べる。",
+  blanks : [ {text:"often eat"}, {text:"at"} ],
+  hideIdx: [0],
+  isMistakenOnce: false,
+}
+========================================= */
+
+/* ====== ユーティリティ ====== */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+/* ====================================== */
+
+/* ========== ① 入力→配列化 ========== */
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('srcText').value.trim();
+  if(!raw){alert("英文を入力してください");return;}
+  
+  allSentences = [];
+  raw.split(/\n+/).forEach(line=>{
+    const [eng, jpn=""] = line.split("@");
+    if(!eng) return;
+    const blanks = [];
+    const regex = /<([^>]+)>/g;
+    let m;
+    while((m=regex.exec(eng))!==null){
+      blanks.push({text:m[1]});
+    }
+    if(blanks.length===0) return;
+    
+    allSentences.push({
+      engRaw: eng.trim(),
+      jpn   : jpn.trim(),
+      blanks: blanks
+    });
+  });
+  
+  if(allSentences.length===0){ alert("フォーマットに合致する文が見つかりません"); return;}
+  
+  startRound(allSentences);
+  document.getElementById('inputArea').classList.add('hidden');
+});
+
+/* ========== ラウンド開始関数 ========== */
+function startRound(sentenceArray){
+  currentRound = sentenceArray.map(src=>{
+    const obj = JSON.parse(JSON.stringify(src));
+    const n = obj.blanks.length;
+    const need = Math.ceil(n*0.7);
+    const idxArr = [...Array(n).keys()];
+    shuffle(idxArr);
+    obj.hideIdx = idxArr.slice(0,need);
+    obj.isMistakenOnce = false;
+    return obj;
+  });
+  
+  shuffle(currentRound);
+  currentIdx = 0;
+  correctCount = 0;
+  mistakeArray = [];
+  
+  document.querySelector('.container').classList.remove('hidden');
+  document.getElementById('inputArea').classList.add('hidden');
+  document.getElementById('quizArea').classList.remove('hidden');
+  document.getElementById('resultArea').classList.add('hidden');
+  showQuestion();
+}
+
+/* ========== 問題表示 ========== */
+function showQuestion(){
+  document.getElementById('questionContainer').classList.remove('hidden');
+  document.getElementById('answerContainer').classList.add('hidden');
+
+  const s = currentRound[currentIdx];
+  const parts = [];
+  let blankNo = 0;
+  s.engRaw.split(/(<[^>]+>)/).forEach(part=>{
+    if(/^<[^>]+>$/.test(part)){
+      const pure = part.slice(1,-1);
+      if( s.hideIdx.includes(blankNo) ){
+        parts.push(`<input type="text" class="blank" data-ans="${pure}">`);
+      }else{
+        parts.push(pure);
+      }
+      blankNo++;
+    }else{
+      parts.push(part);
+    }
+  });
+  const questionHTML = `<div>${parts.join('')}</div><div class="jp">${s.jpn}</div>`;
+  document.getElementById('questionBox').innerHTML = questionHTML;
+  document.querySelector('#questionBox input.blank')?.focus(); // 最初の入力欄にフォーカス
+  
+  updateStatus();
+}
+
+/* ========== ステータス表示 ========== */
+function updateStatus(){
+  const rest = currentRound.length - currentIdx;
+  document.getElementById('statusLine').textContent = 
+    `残り ${rest} 問 | 正解 ${correctCount} 問`;
+}
+
+/* ========== 解答チェック ========== */
+document.getElementById('checkBtn').addEventListener('click', ()=>{
+  const s = currentRound[currentIdx];
+  const inputs = document.querySelectorAll('#questionBox input.blank');
+  
+  let allOk = true;
+  const userAnswerParts = [];
+  const correctAnswerParts = [];
+  let blankNo = 0;
+  let inputIdx = 0;
+
+  s.engRaw.split(/(<[^>]+>)/).forEach(part => {
+    if(/^<[^>]+>$/.test(part)){ // ブランク候補 <foo>
+      const correctText = part.slice(1, -1);
+      
+      if (s.hideIdx.includes(blankNo)) { // このブランクは問題だった
+        const userText = inputs[inputIdx].value.trim();
+        const userTextForDisplay = userText || '(無回答)';
+        
+        if (userText.toLowerCase() === correctText.toLowerCase()) {
+          userAnswerParts.push(`<span class="correct-text">${userTextForDisplay}</span>`);
+          correctAnswerParts.push(`<span class="correct-text">${correctText}</span>`);
+        } else {
+          allOk = false;
+          userAnswerParts.push(`<span class="incorrect-text">${userTextForDisplay}</span>`);
+          correctAnswerParts.push(`<span class="highlight-answer">${correctText}</span>`);
+        }
+        inputIdx++;
+      } else { // 問題ではなかったブランク
+        userAnswerParts.push(correctText);
+        correctAnswerParts.push(correctText);
+      }
+      blankNo++;
+    } else { // 通常のテキスト
+      userAnswerParts.push(part);
+      correctAnswerParts.push(part);
+    }
+  });
+
+  if (!allOk) {
+    s.isMistakenOnce = true;
+  }
+  
+  document.getElementById('userAnswerLine').innerHTML = `<strong>あなたの回答：</strong> ${userAnswerParts.join(' ')}`;
+  document.getElementById('correctAnswerLine').innerHTML = `<strong>正しい回答：</strong> ${correctAnswerParts.join(' ')}`;
+  
+  document.getElementById('questionContainer').classList.add('hidden');
+  document.getElementById('answerContainer').classList.remove('hidden');
+  document.getElementById('nextBtn').focus();
+});
+
+
+/* ========== 次の問題へ ========== */
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const s = currentRound[currentIdx];
+  if (s.isMistakenOnce) {
+    mistakeArray.push(s);
+  } else {
+    correctCount++;
+  }
+  
+  currentIdx++;
+  if (currentIdx >= currentRound.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+});
+
+/* ========== 結果表示 ========== */
+function showResult(){
+  document.getElementById('quizArea').classList.add('hidden');
+  const rArea = document.getElementById('resultArea');
+  rArea.classList.remove('hidden');
+  
+  const resultTitle = document.getElementById('resultTitle');
+  if (mistakeArray.length === 0) {
+    resultTitle.textContent = "パーフェクト！おめでとうございます🎉";
+    resultTitle.className = "perfect";
+  } else {
+    resultTitle.textContent = `終了：${mistakeArray.length} 文でミスがありました`;
+    resultTitle.className = "has-mistakes";
+  }
+  
+  const listDiv = document.getElementById('mistakeList');
+  listDiv.innerHTML = "";
+  if(mistakeArray.length){
+    mistakeArray.forEach((s,i)=>{
+      let idx=0;
+      const fixed = s.engRaw.replace(/<([^>]+)>/g,(m,p1)=>{
+        const disp = s.hideIdx.includes(idx) ? `<strong>(${p1})</strong>` : p1;
+        idx++;
+        return disp;
+      });
+      listDiv.innerHTML += `<div class="mistake">${i+1}. ${fixed}<div class="jp">${s.jpn}</div></div>`;
+    });
+  }
+  
+  document.getElementById('retryBtn').style.display =
+       mistakeArray.length ? "inline-block" : "none";
+}
+
+/* ========== リトライ / 再スタート ========== */
+document.getElementById('retryBtn').addEventListener('click', ()=>{
+  if(!mistakeArray.length) return;
+  startRound(mistakeArray);
+});
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  document.getElementById('inputArea').classList.remove('hidden');
+  document.getElementById('quizArea').classList.add('hidden');
+  document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('srcText').value = ''; // テキストエリアをクリア
+  document.getElementById('srcText').focus();
+});
+</script>
+</body>
+</html>
