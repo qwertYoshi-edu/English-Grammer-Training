@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英文穴埋めトレーニングv2</title>
+<title>英文穴埋めトレーニングv5</title>
 <style>
 /* ====================================================== */
 /* == デザイン調整ガイド                               == */
@@ -12,7 +12,7 @@
 
 /* ★追加★ デザイン調整用の変数を定義 */
 :root {
-  --blank-input-width: 100px; /* 穴埋め入力欄の幅 */
+  --blank-input-width: 80px; /* 穴埋め入力欄の幅 */
 }
 
 
@@ -37,7 +37,7 @@ body {
 
 /* ★変更★ サイドパネルのスタイル調整 */
 #sideMistakePanel {
-    width: 280px; /* ★変更★ 幅を小さく */
+    width: 320px; /* ★変更★ 幅を小さく */
     background-color: #fff;
     padding: 10px;
     border-radius: 6px;
@@ -57,7 +57,7 @@ body {
     margin-bottom: 8px;
     padding-bottom: 8px;
     border-bottom: 1px dashed #ddd;
-    font-size: 0.95rem; /* ★変更★ 文字サイズを小さく */
+    font-size: 0.75rem; /* ★変更★ 文字サイズを小さく */
     line-height: 1.5;
     word-break: break-all; /* はみ出し防止のため単語の途中でも改行 */
 }
@@ -126,7 +126,7 @@ textarea:focus {
 
 /* ===== ボタンの共通スタイル ===== */
 button {
-  padding: 6px 10px;
+  padding: 24px 10px;
   font-size: 0.95rem;
   margin-top: 8px;
   border: none;
@@ -179,6 +179,7 @@ button:active {
 /* ★変更★ 入力ボックスの幅を変数で指定 */
 input.blank {
   width: var(--blank-input-width); /* ★変更★ 変数を使用 */
+  height: 12;
   padding: 6px;
   margin: 0 6px;
   border: 1px solid #ccc;
@@ -262,7 +263,7 @@ input.blank:focus {
 }
 .mistake .jp {
   color: #777;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   margin-top: 5px;
 }
 </style>
