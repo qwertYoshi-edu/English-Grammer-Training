@@ -10,6 +10,12 @@
 /* == ここから下の値を変更するとデザインが変わります == */
 /* ====================================================== */
 
+/* ★追加★ デザイン調整用の変数を定義 */
+:root {
+  --blank-input-width: 100px; /* 穴埋め入力欄の幅 */
+}
+
+
 /* ===== 全体のスタイル ===== */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* フォントの種類 */
@@ -17,28 +23,78 @@ body {
   color: #333; /* 基本の文字色 */
   margin: 0;
   padding: 20px; /* 外側の余白 */
-  display: flex;
-  justify-content: center;
 }
 
+.main-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ★変更★ サイドパネルのスタイル調整 */
+#sideMistakePanel {
+    width: 220px; /* ★変更★ 幅を小さく */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 20px;
+    flex-shrink: 0;
+}
+#sideMistakePanel h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    font-size: 1.2rem;
+    color: #c0392b;
+    border-bottom: 2px solid #f39c12;
+}
+.side-mistake-item {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #ddd;
+    font-size: 0.6rem; /* ★変更★ 文字サイズを小さく */
+    line-height: 1.5;
+    word-break: break-all; /* はみ出し防止のため単語の途中でも改行 */
+}
+.side-mistake-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.side-user-answer::before {
+    content: "誤：";
+    color: #e74c3c;
+    font-weight: bold;
+}
+.side-correct-answer::before {
+    content: "正：";
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+
 .container {
-  background-color: #fff; /* コンテンツエリアの背景色 */
-  padding: 30px; /* コンテンツエリアの内側の余白 */
-  border-radius: 12px; /* コンテンツエリアの角の丸み */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 影 */
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   width: 100%;
-  max-width: 700px; /* 最大幅 */
+  max-width: 700px;
 }
 
 h2, h3 {
-  color: #2c3e50; /* 見出しの文字色 */
-  border-bottom: 2px solid #3498db; /* 見出しの下線の色 */
-  padding-bottom: 10px; /* 見出しと下線の間の余白 */
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
   margin-top: 0;
 }
 
 p {
-  line-height: 1.6; /* 段落の行の高さ */
+  line-height: 1.6;
 }
 
 .hidden {
@@ -47,85 +103,87 @@ p {
 
 /* ===== 入力エリアのスタイル ===== */
 #inputArea p {
-  background-color: #ecf0f1; /* 説明文の背景色 */
-  border-left: 4px solid #3498db; /* 説明文の左側の線の色 */
-  padding: 12px; /* 説明文の内側の余白 */
+  background-color: #ecf0f1;
+  border-left: 4px solid #3498db;
+  padding: 12px;
   border-radius: 4px;
 }
 textarea {
   width: 100%;
-  height: 160px; /* テキストエリアの高さ */
+  height: 160px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 1rem; /* テキストエリアの文字サイズ */
+  font-size: 1rem;
   box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 textarea:focus {
-  border-color: #3498db; /* フォーカス時の枠線の色 */
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* フォーカス時の影の色 */
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
   outline: none;
 }
 
 /* ===== ボタンの共通スタイル ===== */
 button {
-  padding: 10px 20px; /* ボタンの余白 */
-  font-size: 1rem; /* ボタンの文字サイズ */
+  padding: 10px 20px;
+  font-size: 1rem;
   margin-top: 15px;
   border: none;
   border-radius: 6px;
-  color: #fff; /* ボタンの文字色 */
-  background-color: #3498db; /* 通常ボタンの背景色 */
+  color: #fff;
+  background-color: #3498db;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
 }
 button:hover {
-  background-color: #2980b9; /* 通常ボタンのホバー時の背景色 */
+  background-color: #2980b9;
 }
 button:active {
   transform: translateY(1px);
 }
 #retryBtn {
-  background-color: #f39c12; /* リトライボタンの背景色 */
+  background-color: #f39c12;
 }
 #retryBtn:hover {
-  background-color: #e67e22; /* リトライボタンのホバー時の背景色 */
+  background-color: #e67e22;
 }
 #restartBtn {
-  background-color: #95a5a6; /* 再スタートボタンの背景色 */
+  background-color: #95a5a6;
   margin-left: 10px;
 }
 #restartBtn:hover {
-  background-color: #7f8c8d; /* 再スタートボタンのホバー時の背景色 */
+  background-color: #7f8c8d;
 }
 
 /* ===== クイズエリアのスタイル ===== */
 .status {
   margin: 10px 0 20px 0;
   font-weight: bold;
-  background-color: #eaf5fc; /* ステータス表示の背景色 */
+  background-color: #eaf5fc;
   padding: 10px;
   border-radius: 6px;
-  color: #2980b9; /* ステータス表示の文字色 */
+  color: #2980b9;
 }
 .question {
   margin: 20px 0;
-  font-size: 1.4rem; /* 問題文の文字サイズ */
+  font-size: 1.4rem;
   line-height: 1.8;
 }
 .jp {
   color: #555;
   margin-top: 10px;
-  font-size: 1.2rem; /* 日本語訳の文字サイズ */
+  font-size: 1.2rem;
 }
+
+/* ★変更★ 入力ボックスの幅を変数で指定 */
 input.blank {
-  width: 120px; /* 穴埋め入力欄の幅 */
+  width: var(--blank-input-width); /* ★変更★ 変数を使用 */
   padding: 6px;
   margin: 0 6px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1.3rem; /* 穴埋め入力欄の文字サイズ */
+  font-size: 1.3rem;
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -143,35 +201,35 @@ input.blank:focus {
 }
 .answer-line {
   margin: 15px 0;
-  font-size: 1.3rem; /* 回答表示の文字サイズ */
+  font-size: 1.3rem;
   padding: 10px;
   border-radius: 6px;
 }
 .answer-line strong {
     display: inline-block;
-    width: 150px; /* 「あなたの回答：」ラベルの幅 */
+    width: 150px;
 }
-#userAnswerLine { background-color: #f9f9f9; } /* あなたの回答行の背景色 */
-#correctAnswerLine { background-color: #eaf5fc; } /* 正しい回答行の背景色 */
+#userAnswerLine { background-color: #f9f9f9; }
+#correctAnswerLine { background-color: #eaf5fc; }
 
 /* ★ 正解・不正解テキストのスタイル ★ */
 .correct-text {
-  color: #2ecc71; /* 正解テキストの色 (緑) */
+  color: #2ecc71;
   font-weight: bold;
 }
 .incorrect-text {
-  color: #e74c3c; /* 不正解テキストの色 (赤) */
+  color: #e74c3c;
   font-weight: bold; 
   text-decoration: line-through; 
   text-decoration-thickness: 2px;
-  background-color: #fff0f0; /* ★修正★ 不正解テキストの背景色 (薄い赤) */
+  background-color: #fff0f0;
   padding: 2px 5px;
   border-radius: 4px;
 }
 .highlight-answer {
-  color: #c0392b; /* 正しい答えのハイライト色 (濃い赤) */
+  color: #c0392b;
   font-weight: bold; 
-  background-color: #eaf7ec; /* ★修正★ 正しい答えの背景色 (薄い緑) */
+  background-color: #eaf7ec;
   padding: 2px 5px;
   border-radius: 4px;
 }
@@ -179,27 +237,27 @@ input.blank:focus {
 
 /* ===== 結果表示のスタイル ===== */
 #resultTitle {
-  font-size: 1.5rem; /* 結果タイトルの文字サイズ */
+  font-size: 1.5rem;
   color: #fff;
   padding: 15px;
   border-radius: 6px;
   text-align: center;
 }
 #resultTitle.perfect {
-  background: linear-gradient(45deg, #2ecc71, #27ae60); /* パーフェクト時の背景色 */
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
 }
 #resultTitle.has-mistakes {
-  background: linear-gradient(45deg, #f39c12, #e67e22); /* ミスがあった時の背景色 */
+  background: linear-gradient(45deg, #f39c12, #e67e22);
 }
 
 .mistake {
-  color: #c0392b; /* 間違えた問題リストの文字色 */
-  background-color: #fff6f6; /* 間違えた問題リストの背景色 */
+  color: #c0392b;
+  background-color: #fff6f6;
   padding: 15px;
   border-radius: 6px;
   border: 1px solid #f5c6cb;
   margin-bottom: 12px;
-  font-size: 1.1rem; /* 間違えた問題リストの文字サイズ */
+  font-size: 1.1rem;
   line-height: 1.7;
 }
 .mistake .jp {
@@ -211,48 +269,57 @@ input.blank:focus {
 </head>
 <body>
 
-<div class="container">
-  <h2>英文穴埋めトレーニング</h2>
+<div class="main-wrapper">
 
-  <!-- ======= ① 入力画面 ======= -->
-  <div id="inputArea">
-    <p>以下の書式で英文を入力し、開始ボタンを押してください。<br>
-    英文中で穴埋め候補にしたい語句を < > で囲み、末尾に「@日本語訳」を付与、文ごとに改行します。</p>
-    <p>例)<br>
-    I <often eat> breakfast <at> seven.@私は普段7時に朝食を食べる。<br>
-    We <will meet> you <in> the lobby.@ロビーで会いましょう。</p>
-
-    <textarea id="srcText" placeholder="ここに英文を入力..."></textarea><br>
-    <button id="startBtn">開始</button>
+  <div id="sideMistakePanel" class="hidden">
+    <h3>間違いリスト</h3>
+    <div id="sideMistakeList"></div>
   </div>
 
-  <!-- ======= ② 問題出題画面 ======= -->
-  <div id="quizArea" class="hidden">
-    <div class="status" id="statusLine"></div>
-    
-    <!-- 問題入力部分 -->
-    <div id="questionContainer">
-      <div class="question" id="questionBox"></div>
-      <button id="checkBtn">解答</button>
+  <div class="container">
+    <h2>英文穴埋めトレーニング</h2>
+
+    <!-- ======= ① 入力画面 ======= -->
+    <div id="inputArea">
+      <p>以下の書式で英文を入力し、開始ボタンを押してください。<br>
+      英文中で穴埋め候補にしたい語句を < > で囲み、末尾に「@日本語訳」を付与します。<b>問題と問題の間は # で区切ってください。</b></p>
+      <p>例)<br>
+      I <often eat> breakfast <at> seven.@私は普段7時に朝食を食べる。<br>
+      #<br>
+      We <will meet> you <in> the lobby.@ロビーで会いましょう。</p>
+
+      <textarea id="srcText" placeholder="ここに英文を入力..."></textarea><br>
+      <button id="startBtn">開始</button>
     </div>
 
-    <!-- 答え合わせ表示部分 -->
-    <div id="answerContainer" class="hidden">
-      <div id="userAnswerLine" class="answer-line"></div>
-      <div id="correctAnswerLine" class="answer-line"></div>
-      <button id="nextBtn">次へ進む</button>
+    <!-- ======= ② 問題出題画面 ======= -->
+    <div id="quizArea" class="hidden">
+      <div class="status" id="statusLine"></div>
+      
+      <div id="questionContainer">
+        <div class="question" id="questionBox"></div>
+        <button id="checkBtn">解答</button>
+      </div>
+
+      <div id="answerContainer" class="hidden">
+        <div id="userAnswerLine" class="answer-line"></div>
+        <div id="correctAnswerLine" class="answer-line"></div>
+        <button id="nextBtn">次へ進む</button>
+      </div>
+    </div>
+
+
+    <!-- ======= ③ 結果表示画面 ======= -->
+    <div id="resultArea" class="hidden">
+      <h3 id="resultTitle"></h3>
+      <div id="mistakeList"></div>
+      <button id="retryBtn">リトライ</button>
+      <button id="restartBtn">最初からやり直す</button>
     </div>
   </div>
 
-
-  <!-- ======= ③ 結果表示画面 ======= -->
-  <div id="resultArea" class="hidden">
-    <h3 id="resultTitle"></h3>
-    <div id="mistakeList"></div>
-    <button id="retryBtn">リトライ</button>
-    <button id="restartBtn">最初からやり直す</button>
-  </div>
 </div>
+
 
 <script>
 /* ======  グローバル保持用  ====== */
@@ -269,6 +336,8 @@ let mistakeArray = [];
   blanks : [ {text:"often eat"}, {text:"at"} ],
   hideIdx: [0],
   isMistakenOnce: false,
+  userAnswerHTML: "...",
+  correctAnswerHTML: "...",
 }
 ========================================= */
 
@@ -287,9 +356,14 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
   if(!raw){alert("英文を入力してください");return;}
   
   allSentences = [];
-  raw.split(/\n+/).forEach(line=>{
-    const [eng, jpn=""] = line.split("@");
+  
+  raw.split('#').forEach(problemBlock => {
+    const block = problemBlock.trim();
+    if (!block) return;
+
+    const [eng, jpn=""] = block.split("@");
     if(!eng) return;
+
     const blanks = [];
     const regex = /<([^>]+)>/g;
     let m;
@@ -321,6 +395,8 @@ function startRound(sentenceArray){
     shuffle(idxArr);
     obj.hideIdx = idxArr.slice(0,need);
     obj.isMistakenOnce = false;
+    delete obj.userAnswerHTML;
+    delete obj.correctAnswerHTML;
     return obj;
   });
   
@@ -333,6 +409,10 @@ function startRound(sentenceArray){
   document.getElementById('inputArea').classList.add('hidden');
   document.getElementById('quizArea').classList.remove('hidden');
   document.getElementById('resultArea').classList.add('hidden');
+
+  document.getElementById('sideMistakePanel').classList.add('hidden');
+  document.getElementById('sideMistakeList').innerHTML = '';
+
   showQuestion();
 }
 
@@ -359,7 +439,7 @@ function showQuestion(){
   });
   const questionHTML = `<div>${parts.join('')}</div><div class="jp">${s.jpn}</div>`;
   document.getElementById('questionBox').innerHTML = questionHTML;
-  document.querySelector('#questionBox input.blank')?.focus(); // 最初の入力欄にフォーカス
+  document.querySelector('#questionBox input.blank')?.focus();
   
   updateStatus();
 }
@@ -383,10 +463,10 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
   let inputIdx = 0;
 
   s.engRaw.split(/(<[^>]+>)/).forEach(part => {
-    if(/^<[^>]+>$/.test(part)){ // ブランク候補 <foo>
+    if(/^<[^>]+>$/.test(part)){
       const correctText = part.slice(1, -1);
       
-      if (s.hideIdx.includes(blankNo)) { // このブランクは問題だった
+      if (s.hideIdx.includes(blankNo)) {
         const userText = inputs[inputIdx].value.trim();
         const userTextForDisplay = userText || '(無回答)';
         
@@ -399,12 +479,12 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
           correctAnswerParts.push(`<span class="highlight-answer">${correctText}</span>`);
         }
         inputIdx++;
-      } else { // 問題ではなかったブランク
+      } else {
         userAnswerParts.push(correctText);
         correctAnswerParts.push(correctText);
       }
       blankNo++;
-    } else { // 通常のテキスト
+    } else {
       userAnswerParts.push(part);
       correctAnswerParts.push(part);
     }
@@ -412,6 +492,8 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
 
   if (!allOk) {
     s.isMistakenOnce = true;
+    s.userAnswerHTML = userAnswerParts.join(' ');
+    s.correctAnswerHTML = correctAnswerParts.join(' ');
   }
   
   document.getElementById('userAnswerLine').innerHTML = `<strong>あなたの回答：</strong> ${userAnswerParts.join(' ')}`;
@@ -427,7 +509,10 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
 document.getElementById('nextBtn').addEventListener('click', ()=>{
   const s = currentRound[currentIdx];
   if (s.isMistakenOnce) {
-    mistakeArray.push(s);
+    if (!mistakeArray.find(item => item.engRaw === s.engRaw)) {
+        mistakeArray.push(s);
+    }
+    updateSideMistakePanel();
   } else {
     correctCount++;
   }
@@ -440,12 +525,39 @@ document.getElementById('nextBtn').addEventListener('click', ()=>{
   }
 });
 
+/* ========== サイドの間違いリストを更新する関数 ========== */
+function updateSideMistakePanel() {
+    const panel = document.getElementById('sideMistakePanel');
+    const listDiv = document.getElementById('sideMistakeList');
+    
+    if (mistakeArray.length > 0) {
+        panel.classList.remove('hidden');
+        let html = '';
+        mistakeArray.forEach(s => {
+            if (s.userAnswerHTML && s.correctAnswerHTML) {
+                html += `
+                    <div class="side-mistake-item">
+                        <div class="side-user-answer">${s.userAnswerHTML}</div>
+                        <div class="side-correct-answer">${s.correctAnswerHTML}</div>
+                    </div>
+                `;
+            }
+        });
+        listDiv.innerHTML = html;
+    } else {
+        panel.classList.add('hidden');
+    }
+}
+
+
 /* ========== 結果表示 ========== */
 function showResult(){
   document.getElementById('quizArea').classList.add('hidden');
   const rArea = document.getElementById('resultArea');
   rArea.classList.remove('hidden');
   
+  document.getElementById('sideMistakePanel').classList.add('hidden');
+
   const resultTitle = document.getElementById('resultTitle');
   if (mistakeArray.length === 0) {
     resultTitle.textContent = "パーフェクト！おめでとうございます🎉";
@@ -482,7 +594,10 @@ document.getElementById('restartBtn').addEventListener('click', ()=>{
   document.getElementById('inputArea').classList.remove('hidden');
   document.getElementById('quizArea').classList.add('hidden');
   document.getElementById('resultArea').classList.add('hidden');
-  document.getElementById('srcText').value = ''; // テキストエリアをクリア
+  
+  document.getElementById('sideMistakePanel').classList.add('hidden');
+  
+  document.getElementById('srcText').value = '';
   document.getElementById('srcText').focus();
 });
 </script>
