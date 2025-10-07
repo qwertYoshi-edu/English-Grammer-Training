@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英文穴埋めトレーニングv8</title>
+<title>英文穴埋めトレーニングv0.9</title>
 <style>
 /* ====================================================== */
 /* == デザインリファイン                               == */
@@ -62,7 +62,7 @@ body {
   margin: 0;
   padding: var(--spacing-sm);
   font-size: var(--font-size-base);
-  overflow: hidden; /* ★変更★ ページ全体のスクロールを禁止 */
+  overflow: hidden;
 }
 
 .main-wrapper {
@@ -85,7 +85,6 @@ body {
     position: sticky;
     top: var(--spacing-sm);
     flex-shrink: 0;
-    /* ★変更★ 高さを画面に合わせる */
     height: calc(100vh - 2 * var(--spacing-sm));
     display: flex;
     flex-direction: column;
@@ -133,18 +132,16 @@ body {
   box-shadow: var(--panel-shadow);
   width: 100%;
   max-width: 700px;
-  /* ★追加★ 高さを画面に合わせ、内部をFlexboxで制御 */
   height: calc(100vh - 2 * var(--spacing-sm));
-  box-sizing: border-box; /* paddingとborderを高さに含める */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
-/* ★追加★ メインコンテンツのスクロールエリア */
 .main-content-area {
-    flex-grow: 1; /* 残りの高さをすべて使用 */
-    overflow-y: auto; /* 内容がはみ出したらスクロール */
-    padding-right: var(--spacing-sm); /* スクロールバーとの余白 */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: var(--spacing-sm);
     margin-right: -5px;
 }
 
@@ -154,7 +151,7 @@ h2, h3 {
   border-bottom: 2px solid var(--primary-color);
   padding-bottom: var(--spacing-sm);
   margin: 0 0 var(--spacing-lg) 0;
-  flex-shrink: 0; /* ★追加★ ヘッダーは縮まないように */
+  flex-shrink: 0;
 }
 h2 { font-size: 1.4rem; }
 h3 { font-size: 1.2rem; }
@@ -360,14 +357,12 @@ input.blank:focus {
   <div class="container">
     <h2>英文穴埋めトレーニング</h2>
 
-    <!-- ★追加★ スクロール用のラッパー -->
     <div class="main-content-area">
       <!-- ======= ① 入力画面 ======= -->
       <div id="inputArea">
         <p>以下の書式で英文を入力し、開始ボタンを押してください。<br>
         英文中で穴埋め候補にしたい語句を < > で囲み、末尾に「@日本語訳」を付与します。<b>問題と問題の間は # で区切ってください。</b></p>
         <p>例)<br>
-        <!-- ★変更★ 例文を修正 -->
         I &lt;often&gt; &lt;eat&gt; breakfast &lt;at&gt; seven.@私は普段7時に朝食を食べる。#<br>
         We &lt;will&gt; &lt;meet&gt; you &lt;in&gt; the lobby.@ロビーで会いましょう。</p>
 
@@ -401,7 +396,7 @@ input.blank:focus {
         <button id="retryBtn">リトライ</button>
         <button id="restartBtn">最初からやり直す</button>
       </div>
-    </div> <!-- ★追加★ ラッパーの閉じタグ -->
+    </div>
   </div>
 
 </div>
@@ -757,10 +752,9 @@ function startReviewSession() {
     };
     
     currentRound = [...mistakeArray];
+    // ★変更★ リスト表示に必要なプロパティを削除しないように修正
     currentRound.forEach(q => {
         q.isMistakenOnce = false;
-        delete q.userAnswerHTML;
-        delete q.correctAnswerHTML;
     });
     shuffle(currentRound);
     currentIdx = 0;
@@ -779,7 +773,7 @@ function restoreQuizState() {
     if (!backupState) return;
 
     currentRound = backupState.round;
-    currentIdx = backup-State.index;
+    currentIdx = backupState.index;
     correctCount = backupState.correctCount;
     backupState = null;
     isReviewing = false;
