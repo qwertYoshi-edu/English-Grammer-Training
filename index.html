@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英文穴埋めトレーニングv6</title>
+<title>英文穴埋めトレーニングv7</title>
 <style>
 /* ====================================================== */
 /* == デザイン調整ガイド                               == */
@@ -34,7 +34,6 @@ body {
     margin: 0 auto;
 }
 
-/* ★変更★ サイドパネルのスタイル調整 */
 #sideMistakePanel {
     width: 360px;
     background-color: #fff;
@@ -44,7 +43,6 @@ body {
     position: sticky;
     top: 10px;
     flex-shrink: 0;
-    /* ★追加★ パネル自体の高さを画面内に収める */
     max-height: calc(100vh - 20px);
     display: flex;
     flex-direction: column;
@@ -55,12 +53,11 @@ body {
     font-size: 1.2rem;
     color: #c0392b;
     border-bottom: 2px solid #f39c12;
-    flex-shrink: 0; /* ヘッダーが縮まないようにする */
+    flex-shrink: 0;
 }
-/* ★追加★ 間違いリストのスクロール設定 */
 #sideMistakeList {
-    overflow-y: auto; /* 縦方向のスクロールを自動で表示 */
-    padding-right: 5px; /* スクロールバーとの余白 */
+    overflow-y: auto;
+    padding-right: 5px;
 }
 .side-mistake-item {
     margin-bottom: 4px;
@@ -434,9 +431,8 @@ function startRound(sentenceArray){
   document.getElementById('quizArea').classList.remove('hidden');
   document.getElementById('resultArea').classList.add('hidden');
 
-  // ★変更★ サイドパネルを常に表示
   document.getElementById('sideMistakePanel').classList.remove('hidden');
-  updateSideMistakePanel(); // 初期メッセージを表示するため呼び出す
+  updateSideMistakePanel();
 
   document.getElementById('reviewMistakesBtn').classList.add('hidden');
   document.getElementById('instantRetryBtn').classList.add('hidden');
@@ -578,7 +574,7 @@ document.getElementById('nextBtn').addEventListener('click', ()=>{
 });
 
 /* ========== サイドの間違いリストを更新する関数 ========== */
-// ★変更★ パネルを隠さず、内容を更新するロジックに変更
+// ★変更★ 復習モード中に答えを隠すロジックを追加
 function updateSideMistakePanel() {
     const listDiv = document.getElementById('sideMistakeList');
     const reviewBtn = document.getElementById('reviewMistakesBtn');
@@ -587,10 +583,24 @@ function updateSideMistakePanel() {
         let html = '';
         mistakeArray.forEach(s => {
             if (s.userAnswerHTML && s.correctAnswerHTML) {
+                let userHTML = s.userAnswerHTML;
+                let correctHTML = s.correctAnswerHTML;
+
+                // 復習モード中は答えをアスタリスクに変換
+                if (isReviewing) {
+                    const replacer = (match, openTag, content, closeTag) => {
+                        if (content === '(無回答)') return match;
+                        return openTag + '*'.repeat(content.length) + closeTag;
+                    };
+                    const regex = /(<span class="(?:incorrect-text|highlight-answer|correct-text)">)([^<]+)(<\/span>)/g;
+                    userHTML = userHTML.replace(regex, replacer);
+                    correctHTML = correctHTML.replace(regex, replacer);
+                }
+
                 html += `
                     <div class="side-mistake-item">
-                        <div class="side-user-answer">${s.userAnswerHTML}</div>
-                        <div class="side-correct-answer">${s.correctAnswerHTML}</div>
+                        <div class="side-user-answer">${userHTML}</div>
+                        <div class="side-correct-answer">${correctHTML}</div>
                     </div>
                 `;
             }
@@ -649,7 +659,6 @@ document.getElementById('restartBtn').addEventListener('click', ()=>{
   document.getElementById('quizArea').classList.add('hidden');
   document.getElementById('resultArea').classList.add('hidden');
   
-  // ★変更★ 最初に戻る際にサイドパネルを隠す
   document.getElementById('sideMistakePanel').classList.add('hidden');
   
   document.getElementById('srcText').value = '';
@@ -680,6 +689,7 @@ document.getElementById('reviewMistakesBtn').addEventListener('click', ()=>{
     }
 });
 
+// ★変更★ 復習モード開始時にリスト表示を更新
 function startReviewSession() {
     isReviewing = true;
     backupState = {
@@ -702,8 +712,7 @@ function startReviewSession() {
     reviewBtn.classList.add('in-review');
     document.getElementById('instantRetryBtn').classList.add('hidden');
     
-    // ★変更★ 復習中にサイドパネルを隠さない
-    // updateSideMistakePanel(); // 復習中はリスト内容を更新しない方が自然かもしれない
+    updateSideMistakePanel(); // 復習モードの表示に更新
 
     showQuestion();
 }
