@@ -63,6 +63,8 @@ body {
   padding: var(--spacing-sm);
   font-size: var(--font-size-base);
   overflow: hidden;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 .main-wrapper {
@@ -73,6 +75,7 @@ body {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
+    height: 100%;
 }
 
 /* ===== サイドパネル ===== */
@@ -82,10 +85,9 @@ body {
     padding: var(--spacing-md);
     border-radius: var(--border-radius);
     box-shadow: var(--panel-shadow);
-    position: sticky;
-    top: var(--spacing-sm);
     flex-shrink: 0;
-    height: calc(100vh - 2 * var(--spacing-sm));
+    height: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
 }
@@ -132,7 +134,7 @@ body {
   box-shadow: var(--panel-shadow);
   width: 100%;
   max-width: 700px;
-  height: calc(100vh - 2 * var(--spacing-sm));
+  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -218,6 +220,9 @@ button:active {
 
 #retryBtn { background-color: var(--secondary-color); }
 #retryBtn:hover { background-color: var(--secondary-hover-color); }
+
+#replayBtn { background-color: var(--success-color); }
+#replayBtn:hover { background-color: var(--success-hover-color); }
 
 #restartBtn { background-color: var(--neutral-color); margin-left: var(--spacing-sm); }
 #restartBtn:hover { background-color: var(--neutral-hover-color); }
@@ -393,7 +398,8 @@ input.blank:focus {
       <div id="resultArea" class="hidden">
         <h3 id="resultTitle"></h3>
         <div id="mistakeList"></div>
-        <button id="retryBtn">リトライ</button>
+        <button id="replayBtn" class="hidden">同じ問題で初めから</button>
+        <button id="retryBtn" class="hidden">リトライ</button>
         <button id="restartBtn">最初からやり直す</button>
       </div>
     </div>
@@ -677,12 +683,19 @@ function showResult(){
   document.getElementById('sideMistakePanel').classList.add('hidden');
 
   const resultTitle = document.getElementById('resultTitle');
+  const replayBtn = document.getElementById('replayBtn');
+  const retryBtn = document.getElementById('retryBtn');
+
   if (mistakeArray.length === 0) {
     resultTitle.textContent = "パーフェクト！おめでとうございます🎉";
     resultTitle.className = "perfect";
+    replayBtn.classList.remove('hidden');
+    retryBtn.classList.add('hidden');
   } else {
     resultTitle.textContent = `終了：${mistakeArray.length} 文でミスがありました`;
     resultTitle.className = "has-mistakes";
+    replayBtn.classList.add('hidden');
+    retryBtn.classList.remove('hidden');
   }
   
   const listDiv = document.getElementById('mistakeList');
@@ -698,25 +711,36 @@ function showResult(){
       listDiv.innerHTML += `<div class="mistake">${i+1}. ${fixed}<div class="jp">${s.jpn}</div></div>`;
     });
   }
-  
-  document.getElementById('retryBtn').style.display =
-       mistakeArray.length ? "inline-block" : "none";
 }
 
 /* ========== リトライ / 再スタート ========== */
+// ★変更★ 確認ダイアログを追加
+document.getElementById('replayBtn').addEventListener('click', ()=>{
+  if (window.confirm('同じ問題でもう一度挑戦しますか？')) {
+    startRound(allSentences);
+  }
+});
+
+// ★変更★ 確認ダイアログを追加
 document.getElementById('retryBtn').addEventListener('click', ()=>{
   if(!mistakeArray.length) return;
-  startRound(mistakeArray);
+  if (window.confirm(`間違えた ${mistakeArray.length} 問だけでリトライしますか？`)) {
+    startRound(mistakeArray);
+  }
 });
+
+// ★変更★ 確認ダイアログを追加
 document.getElementById('restartBtn').addEventListener('click', ()=>{
-  document.getElementById('inputArea').classList.remove('hidden');
-  document.getElementById('quizArea').classList.add('hidden');
-  document.getElementById('resultArea').classList.add('hidden');
-  
-  document.getElementById('sideMistakePanel').classList.add('hidden');
-  
-  document.getElementById('srcText').value = '';
-  document.getElementById('srcText').focus();
+  if (window.confirm('現在の学習を終了し、最初の入力画面に戻りますか？\n（入力した英文は消去されます）')) {
+    document.getElementById('inputArea').classList.remove('hidden');
+    document.getElementById('quizArea').classList.add('hidden');
+    document.getElementById('resultArea').classList.add('hidden');
+    
+    document.getElementById('sideMistakePanel').classList.add('hidden');
+    
+    document.getElementById('srcText').value = '';
+    document.getElementById('srcText').focus();
+  }
 });
 
 
@@ -752,7 +776,6 @@ function startReviewSession() {
     };
     
     currentRound = [...mistakeArray];
-    // ★変更★ リスト表示に必要なプロパティを削除しないように修正
     currentRound.forEach(q => {
         q.isMistakenOnce = false;
     });
