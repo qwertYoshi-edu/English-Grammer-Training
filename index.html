@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英文穴埋めトレーニングv5</title>
+<title>英文穴埋めトレーニングv6</title>
 <style>
 /* ====================================================== */
 /* == デザイン調整ガイド                               == */
 /* == ここから下の値を変更するとデザインが変わります == */
 /* ====================================================== */
 
-/* ★追加★ デザイン調整用の変数を定義 */
 :root {
   --blank-input-width: 60px; /* 穴埋め入力欄の幅 */
 }
@@ -18,11 +17,11 @@
 
 /* ===== 全体のスタイル ===== */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* フォントの種類 */
-  background-color: #f4f7f9; /* 背景色 */
-  color: #333; /* 基本の文字色 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f4f7f9;
+  color: #333;
   margin: 0;
-  padding: 8px; /* 外側の余白 */
+  padding: 8px;
 }
 
 .main-wrapper {
@@ -37,7 +36,7 @@ body {
 
 /* ★変更★ サイドパネルのスタイル調整 */
 #sideMistakePanel {
-    width: 360px; /* ★変更★ 幅を小さく */
+    width: 360px;
     background-color: #fff;
     padding: 10px;
     border-radius: 6px;
@@ -45,6 +44,10 @@ body {
     position: sticky;
     top: 10px;
     flex-shrink: 0;
+    /* ★追加★ パネル自体の高さを画面内に収める */
+    max-height: calc(100vh - 20px);
+    display: flex;
+    flex-direction: column;
 }
 #sideMistakePanel h3 {
     margin-top: 0;
@@ -52,14 +55,20 @@ body {
     font-size: 1.2rem;
     color: #c0392b;
     border-bottom: 2px solid #f39c12;
+    flex-shrink: 0; /* ヘッダーが縮まないようにする */
+}
+/* ★追加★ 間違いリストのスクロール設定 */
+#sideMistakeList {
+    overflow-y: auto; /* 縦方向のスクロールを自動で表示 */
+    padding-right: 5px; /* スクロールバーとの余白 */
 }
 .side-mistake-item {
     margin-bottom: 4px;
     padding-bottom: 4px;
     border-bottom: 1px dashed #ddd;
-    font-size: 0.65rem; /* ★変更★ 文字サイズを小さく */
+    font-size: 0.65rem;
     line-height: 1.5;
-    word-break: break-all; /* はみ出し防止のため単語の途中でも改行 */
+    word-break: break-all;
 }
 .side-mistake-item:last-child {
     border-bottom: none;
@@ -156,6 +165,28 @@ button:active {
   background-color: #7f8c8d;
 }
 
+#reviewMistakesBtn {
+    background-color: #16a085;
+    margin-left: 10px;
+}
+#reviewMistakesBtn:hover {
+    background-color: #1abc9c;
+}
+#reviewMistakesBtn.in-review {
+    background-color: #c0392b;
+}
+#reviewMistakesBtn.in-review:hover {
+    background-color: #e74c3c;
+}
+#instantRetryBtn {
+    background-color: #d35400;
+    margin-left: 10px;
+}
+#instantRetryBtn:hover {
+    background-color: #e67e22;
+}
+
+
 /* ===== クイズエリアのスタイル ===== */
 .status {
   margin: 6px 0 10px 0;
@@ -176,9 +207,8 @@ button:active {
   font-size: 0.75rem;
 }
 
-/* ★変更★ 入力ボックスの幅を変数で指定 */
 input.blank {
-  width: var(--blank-input-width); /* ★変更★ 変数を使用 */
+  width: var(--blank-input-width);
   height: 7;
   padding: 3px;
   margin: 0 3px;
@@ -213,7 +243,6 @@ input.blank:focus {
 #userAnswerLine { background-color: #f9f9f9; }
 #correctAnswerLine { background-color: #eaf5fc; }
 
-/* ★ 正解・不正解テキストのスタイル ★ */
 .correct-text {
   color: #2ecc71;
   font-weight: bold;
@@ -300,12 +329,14 @@ input.blank:focus {
       <div id="questionContainer">
         <div class="question" id="questionBox"></div>
         <button id="checkBtn">解答</button>
+        <button id="reviewMistakesBtn" class="hidden">間違いを復習</button>
       </div>
 
       <div id="answerContainer" class="hidden">
         <div id="userAnswerLine" class="answer-line"></div>
         <div id="correctAnswerLine" class="answer-line"></div>
         <button id="nextBtn">次へ進む</button>
+        <button id="instantRetryBtn" class="hidden">もう一度挑戦</button>
       </div>
     </div>
 
@@ -329,18 +360,8 @@ let currentRound = [];
 let currentIdx = 0;
 let correctCount = 0;
 let mistakeArray = [];
-
-/* ====== sentence オブジェクトの中身 ======
-{
-  engRaw : "I <often eat> breakfast <at> seven.",
-  jpn    : "私は普段7時に朝食を食べる。",
-  blanks : [ {text:"often eat"}, {text:"at"} ],
-  hideIdx: [0],
-  isMistakenOnce: false,
-  userAnswerHTML: "...",
-  correctAnswerHTML: "...",
-}
-========================================= */
+let backupState = null;
+let isReviewing = false;
 
 /* ====== ユーティリティ ====== */
 function shuffle(arr){
@@ -405,14 +426,20 @@ function startRound(sentenceArray){
   currentIdx = 0;
   correctCount = 0;
   mistakeArray = [];
+  isReviewing = false;
+  backupState = null;
   
   document.querySelector('.container').classList.remove('hidden');
   document.getElementById('inputArea').classList.add('hidden');
   document.getElementById('quizArea').classList.remove('hidden');
   document.getElementById('resultArea').classList.add('hidden');
 
-  document.getElementById('sideMistakePanel').classList.add('hidden');
-  document.getElementById('sideMistakeList').innerHTML = '';
+  // ★変更★ サイドパネルを常に表示
+  document.getElementById('sideMistakePanel').classList.remove('hidden');
+  updateSideMistakePanel(); // 初期メッセージを表示するため呼び出す
+
+  document.getElementById('reviewMistakesBtn').classList.add('hidden');
+  document.getElementById('instantRetryBtn').classList.add('hidden');
 
   showQuestion();
 }
@@ -448,8 +475,13 @@ function showQuestion(){
 /* ========== ステータス表示 ========== */
 function updateStatus(){
   const rest = currentRound.length - currentIdx;
-  document.getElementById('statusLine').textContent = 
-    `残り ${rest} 問 | 正解 ${correctCount} 問`;
+  if (isReviewing) {
+    document.getElementById('statusLine').textContent = 
+      `復習中 - 残り ${rest} 問`;
+  } else {
+    document.getElementById('statusLine').textContent = 
+      `残り ${rest} 問 | 正解 ${correctCount} 問`;
+  }
 }
 
 /* ========== 解答チェック ========== */
@@ -500,6 +532,8 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
   document.getElementById('userAnswerLine').innerHTML = `<strong>あなたの回答：</strong> ${userAnswerParts.join(' ')}`;
   document.getElementById('correctAnswerLine').innerHTML = `<strong>正しい回答：</strong> ${correctAnswerParts.join(' ')}`;
   
+  document.getElementById('instantRetryBtn').classList.toggle('hidden', allOk);
+  
   document.getElementById('questionContainer').classList.add('hidden');
   document.getElementById('answerContainer').classList.remove('hidden');
   document.getElementById('nextBtn').focus();
@@ -509,30 +543,47 @@ document.getElementById('checkBtn').addEventListener('click', ()=>{
 /* ========== 次の問題へ ========== */
 document.getElementById('nextBtn').addEventListener('click', ()=>{
   const s = currentRound[currentIdx];
-  if (s.isMistakenOnce) {
-    if (!mistakeArray.find(item => item.engRaw === s.engRaw)) {
-        mistakeArray.push(s);
-    }
-    updateSideMistakePanel();
+
+  if (isReviewing) {
+      if (!s.isMistakenOnce) {
+          const idxInMistakeArray = mistakeArray.findIndex(item => item.engRaw === s.engRaw);
+          if (idxInMistakeArray !== -1) {
+              mistakeArray.splice(idxInMistakeArray, 1);
+          }
+          updateSideMistakePanel();
+      }
   } else {
-    correctCount++;
+      if (s.isMistakenOnce) {
+          if (!mistakeArray.find(item => item.engRaw === s.engRaw)) {
+              mistakeArray.push(s);
+          }
+          updateSideMistakePanel();
+      } else {
+          correctCount++;
+      }
   }
   
   currentIdx++;
   if (currentIdx >= currentRound.length) {
-    showResult();
+      if (isReviewing) {
+          alert("復習が完了しました。元のクイズに戻ります。");
+          restoreQuizState();
+          showQuestion();
+      } else {
+          showResult();
+      }
   } else {
-    showQuestion();
+      showQuestion();
   }
 });
 
 /* ========== サイドの間違いリストを更新する関数 ========== */
+// ★変更★ パネルを隠さず、内容を更新するロジックに変更
 function updateSideMistakePanel() {
-    const panel = document.getElementById('sideMistakePanel');
     const listDiv = document.getElementById('sideMistakeList');
+    const reviewBtn = document.getElementById('reviewMistakesBtn');
     
     if (mistakeArray.length > 0) {
-        panel.classList.remove('hidden');
         let html = '';
         mistakeArray.forEach(s => {
             if (s.userAnswerHTML && s.correctAnswerHTML) {
@@ -545,8 +596,10 @@ function updateSideMistakePanel() {
             }
         });
         listDiv.innerHTML = html;
+        if(!isReviewing) reviewBtn.classList.remove('hidden');
     } else {
-        panel.classList.add('hidden');
+        listDiv.innerHTML = `<p style="color:#999; font-size:0.8rem; padding:10px;">まだ間違いはありません。</p>`;
+        reviewBtn.classList.add('hidden');
     }
 }
 
@@ -596,11 +649,81 @@ document.getElementById('restartBtn').addEventListener('click', ()=>{
   document.getElementById('quizArea').classList.add('hidden');
   document.getElementById('resultArea').classList.add('hidden');
   
+  // ★変更★ 最初に戻る際にサイドパネルを隠す
   document.getElementById('sideMistakePanel').classList.add('hidden');
   
   document.getElementById('srcText').value = '';
   document.getElementById('srcText').focus();
 });
+
+
+/* ========================================= */
+/* ====== ★追加★ 新機能関連のイベントリスナー ====== */
+/* ========================================= */
+
+document.getElementById('instantRetryBtn').addEventListener('click', ()=>{
+  showQuestion();
+});
+
+document.getElementById('reviewMistakesBtn').addEventListener('click', ()=>{
+    if (mistakeArray.length === 0 && !isReviewing) {
+        alert("復習する間違いはありません。");
+        return;
+    }
+
+    if (isReviewing) {
+        alert("復習を中断し、元のクイズに戻ります。");
+        restoreQuizState();
+        showQuestion();
+    } else {
+        startReviewSession();
+    }
+});
+
+function startReviewSession() {
+    isReviewing = true;
+    backupState = {
+        round: currentRound,
+        index: currentIdx,
+        correctCount: correctCount,
+    };
+    
+    currentRound = [...mistakeArray];
+    currentRound.forEach(q => {
+        q.isMistakenOnce = false;
+        delete q.userAnswerHTML;
+        delete q.correctAnswerHTML;
+    });
+    shuffle(currentRound);
+    currentIdx = 0;
+    
+    const reviewBtn = document.getElementById('reviewMistakesBtn');
+    reviewBtn.textContent = "元の問題に戻る";
+    reviewBtn.classList.add('in-review');
+    document.getElementById('instantRetryBtn').classList.add('hidden');
+    
+    // ★変更★ 復習中にサイドパネルを隠さない
+    // updateSideMistakePanel(); // 復習中はリスト内容を更新しない方が自然かもしれない
+
+    showQuestion();
+}
+
+function restoreQuizState() {
+    if (!backupState) return;
+
+    currentRound = backupState.round;
+    currentIdx = backupState.index;
+    correctCount = backupState.correctCount;
+    backupState = null;
+    isReviewing = false;
+    
+    const reviewBtn = document.getElementById('reviewMistakesBtn');
+    reviewBtn.textContent = "間違いを復習";
+    reviewBtn.classList.remove('in-review');
+    
+    updateSideMistakePanel();
+}
+
 </script>
 </body>
 </html>
